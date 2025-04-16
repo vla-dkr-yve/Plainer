@@ -7,6 +7,17 @@ using Plainer.Endpoints;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy =>
+    {
+        policy
+            .AllowAnyOrigin()
+            .AllowAnyMethod()
+            .AllowAnyHeader();
+    });
+});
+
 var connstring = builder.Configuration.GetConnectionString("DbConnectionString");
 
 builder.Services.AddDbContext<PlainerDbContext>(options =>
@@ -44,6 +55,8 @@ builder.Services.AddAuthentication("Bearer")
 builder.Services.AddAuthorization();
 
 var app = builder.Build();
+
+app.UseCors("AllowAll");
 
 app.UseAuthentication();
 app.UseAuthorization();

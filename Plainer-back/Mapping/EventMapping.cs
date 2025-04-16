@@ -26,10 +26,23 @@ public static class EventMapping
 
         foreach(var participant in @event.EventParticipants){
             EventParticipants.Add(new(
+                participant.UserId,
                 participant.User.Username,
+                participant.Role.Id,
                 participant.Role.Name
             ));
         }
+
+        string category;
+
+        if (@event.CategoryId == null)
+        {
+            category = "none";
+        }
+        else{
+            category = @event.Category!.Name;
+        }
+
 
         return new(
             @event.Id,
@@ -37,7 +50,7 @@ public static class EventMapping
             @event.Description,
             @event.StartTime,
             @event.EndTime,
-            @event.Category!.Name,
+            category,
             @event.User.Username,
             @event.CreatedAt,
             EventParticipants,

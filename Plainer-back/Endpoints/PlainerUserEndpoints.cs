@@ -53,7 +53,7 @@ public static class PlainerUserEndpoints
                 return Results.Ok(new { token } );
             }
         );
-        
+
         return group;
     }
 }

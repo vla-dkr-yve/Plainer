@@ -5,5 +5,5 @@ public record class CreateEventDTO(
     string Description, 
     DateTime StartTime, 
     DateTime? EndTime, 
-    int CategoryId
+    int? CategoryId
 );

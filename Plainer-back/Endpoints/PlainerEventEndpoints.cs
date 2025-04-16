@@ -52,11 +52,8 @@ public static class PlainerEventEndpoints
         group.MapPost("/", [Authorize] async (HttpContext ctx, CreateEventDTO newEvent, PlainerDbContext dbContext) =>
             {
                 var userId = int.Parse(ctx.User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-                //var user = await dbContext.Users.FindAsync(newEvent.CreatedBy);
                 var role = await dbContext.Roles.FindAsync(1);
 
-                //if (user == null || role == null)
-                //    return Results.BadRequest("User or Role not found.");
                 var @event = new Event
                 {
                     Title = newEvent.Title,

@@ -19,6 +19,7 @@
 
   <ItemGroup>
     <Folder Include="DTOs\EventDTOs\" />
+    <Folder Include="Endpoints\PlainerEventParticipantsEndpoints\" />
     <Folder Include="Mapping\" />
   </ItemGroup>
 
