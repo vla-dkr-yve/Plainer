@@ -4,59 +4,97 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Plainer.Data;
 using Plainer.DTOs.RoleDTO;
+using Plainer.Entities;
+using Plainer.Helper;
 
 namespace Plainer.Endpoints;
 
 public static class PlainerEventParticipantsEndpoints
 {
     public static WebApplication MapPlainerEventParticipantsEndpoints(this WebApplication app){
-        //var group = app.MapGroup("events/{eventId}");
 
-    app.MapPut("events/{eventId}/participants/{targetUserId}/role", [Authorize] async (HttpContext ctx,PlainerDbContext dbContext,int eventId,int targetUserId,RoleUpdateDTO newRole) =>
+    app.MapPost("events/{eventId}/participants/{targetUserId}/role", [Authorize] async (HttpContext ctx,PlainerDbContext dbContext,int eventId,int targetUserId,RoleUpdateDTO newRole) =>
         {
-        var currentUserId = int.Parse(ctx.User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+            var currentUserId = int.Parse(ctx.User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
 
-        // Get current participant in THIS event
-        var currentParticipant = await dbContext.EventParticipants
-            .Include(p => p.Role)
-            .FirstOrDefaultAsync(x => x.UserId == currentUserId && x.EventId == eventId);
+            var currentParticipant = await dbContext.EventParticipants
+                .Include(p => p.Role)
+                .FirstOrDefaultAsync(x => x.UserId == currentUserId && x.EventId == eventId);
 
-        if (currentParticipant is null)
-        {
-            return Results.Forbid();
-        }
+            var targetParticipant = await dbContext.EventParticipants
+                .Include(p => p.Role)
+                .FirstOrDefaultAsync(x => x.UserId == targetUserId && x.EventId == eventId);
 
-        var currentPower = currentParticipant.RoleId;
+            if(EventParticipantsHelper.EventParticipantChecks(currentParticipant,targetParticipant) == false){
+                return Results.Forbid();
+            };
 
-        // Get target participant in THIS event
-        var targetParticipant = await dbContext.EventParticipants
-            .Include(p => p.Role)
-            .FirstOrDefaultAsync(x => x.UserId == targetUserId && x.EventId == eventId);
+            if (newRole.NewRoleId <= currentParticipant.RoleId)
+            {
+                return Results.Forbid();
+            }
 
-        if (targetParticipant is null)
-        {
-            return Results.NotFound("Target is not found");
-        }
+            targetParticipant!.RoleId = newRole.NewRoleId;
 
-        var targetPower = targetParticipant.RoleId;
+            await dbContext.SaveChangesAsync();
 
-        if (currentPower >= targetPower)
-        {
-            return Results.Forbid(); // Can't change role of higher/equal one
-        }
+            return Results.NoContent();
+            }
+        );
 
-        if (newRole.NewRoleId < currentPower)
-        {
-            return Results.Forbid(); // Can't assign a stronger role
-        }
+        //Adding user to event
+        app.MapPost("events/{eventId}/participants/{targetUserUsername}/", [Authorize] async (HttpContext ctx, PlainerDbContext dbContext, int eventId, string targetUserUsername) =>
+            {
+                var currentUserId = int.Parse(ctx.User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
 
-        targetParticipant.RoleId = newRole.NewRoleId;
+                var currentParticipant = await dbContext.EventParticipants
+                .Include(p => p.Role)
+                .FirstOrDefaultAsync(x => x.UserId == currentUserId && x.EventId == eventId);
 
-        await dbContext.SaveChangesAsync();
+                var targetParticipant = await dbContext.Users.FirstOrDefaultAsync(X=>X.Username == targetUserUsername);
 
-        return Results.NoContent();
-        });
+                if (currentParticipant is null || targetParticipant is null)
+                {
+                    return Results.NotFound("Target user doesn't exist");
+                }
 
+                if (currentParticipant.RoleId > 2)
+                {
+                    return Results.Forbid();
+                }
+
+                var newEventParticipant = new EventParticipant{
+                    UserId = targetParticipant.Id,
+                    EventId = eventId,
+                    RoleId = 3
+                };
+
+                await dbContext.EventParticipants.AddAsync(newEventParticipant);
+                await dbContext.SaveChangesAsync();
+
+                return Results.NoContent();
+            }
+        );
+
+        //Removing User from the event
+        app.MapDelete("events/{eventId}/participants/{targetUserId}/", [Authorize] async (HttpContext ctx, PlainerDbContext dbContext, int eventId, int targetUserId) =>
+            {
+                var currentUserId = int.Parse(ctx.User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+
+                var currentParticipant = await dbContext.EventParticipants.Include(p => p.Role).FirstOrDefaultAsync(X=>X.UserId == currentUserId);
+
+                var targetParticipant = await dbContext.EventParticipants.Include(p => p.Role).FirstOrDefaultAsync(X=>X.UserId == targetUserId && X.EventId == eventId);
+
+                if(!EventParticipantsHelper.EventParticipantChecks(currentParticipant,targetParticipant)){
+                    return Results.Forbid();
+                };
+
+                await dbContext.EventParticipants.Where(x=>x.UserId == targetParticipant!.UserId && x.EventId == eventId).ExecuteDeleteAsync();
+                await dbContext.SaveChangesAsync();
+
+                return Results.NoContent();
+            }
+        );
 
         return app;
     }

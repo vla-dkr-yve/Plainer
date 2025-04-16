@@ -327,6 +327,56 @@
       });
     };
     
+    const addParticipantToEvent = async (eventId) => {
+      const usernameToAdd = prompt("Enter username to add:");
+      if (!usernameToAdd) return;
+
+      try {
+        const res = await fetch(`http://localhost:5238/events/${eventId}/participants/${usernameToAdd}/`, {
+  method: "POST",
+  headers: { Authorization: `Bearer ${token}` }
+});
+
+
+        if (res.ok) {
+          showPopup("User added successfully!");
+          openEvent(eventId);
+        } else {
+          const msg = await res.text();
+          showPopup("Failed to add user: " + msg);
+        }
+      } catch (err) {
+        console.error("Add error:", err);
+        showPopup("Server error while adding user");
+      }
+    };
+
+    const removeParticipantFromEvent = async (eventId, userIdToRemove) => {
+      if (!confirm("Are you sure you want to remove this participant?")) return;
+
+      try {
+        const res = await fetch(`http://localhost:5238/events/${eventId}/participants/${userIdToRemove}/`, {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`
+          },
+        });
+
+        if (res.ok) {
+          showPopup("User removed successfully!");
+          openEvent(eventId);
+        } else {
+          const msg = await res.text();
+          showPopup("Failed to remove user: " + msg);
+        }
+      } catch (err) {
+        console.error("Remove error:", err);
+        showPopup("Server error while removing user");
+      }
+    };
+
+    // Modify openEvent to include add/remove buttons
     const openEvent = async id => {
       const res = await fetch(`http://localhost:5238/events/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
@@ -334,6 +384,8 @@
 
       const ev = await res.json();
       const detail = document.getElementById("eventDetails");
+      const currentUserId = parseInt(parseJwt(token).nameid);
+
       detail.innerHTML = `
         <h2>${ev.title}</h2>
         <p>${ev.description}</p>
@@ -344,32 +396,34 @@
         <p><strong>Checked:</strong> ${ev.isChecked ? "✅" : "⬜"}</p>
         <h4>Participants:</h4>
         <ul>
-            ${ev.eventParticipants.map(p => {
-            const currentUserId = parseInt(parseJwt(token).nameid);
+          ${ev.eventParticipants.map(p => {
             const isOtherUser = p.userId !== currentUserId;
             const roleOptions = [
-                { id: 4, name: "-" },
-                { id: 3, name: "Participant" },
-                { id: 2, name: "Manager" }
+              { id: 4, name: "-" },
+              { id: 3, name: "Participant" },
+              { id: 2, name: "Manager" }
             ];
-        return `
-            <li>
+            return `
+              <li>
                 User: ${p.userName} | Current Role: ${p.roleName}
                 ${isOtherUser ? `
-                <select onchange="updateSelectedRole(${p.userId}, this.value)">
-                ${roleOptions.map(r => `
-                <option value="${r.id}" ${r.name === p.roleName ? "selected" : ""}>${r.name}</option>
-                `).join("")}
-                </select>
-            <button onclick="changeRole(${ev.id}, ${p.userId})">Change Role</button>
-        `   : ""}
-            </li>
-        `   ;
-        }).join("")}
+                  <select onchange="updateSelectedRole(${p.userId}, this.value)">
+                    ${roleOptions.map(r => `
+                      <option value="${r.id}" ${r.name === p.roleName ? "selected" : ""}>${r.name}</option>
+                    `).join("")}
+                  </select>
+                  <button onclick="changeRole(${ev.id}, ${p.userId})">Change Role</button>
+                  <button onclick="removeParticipantFromEvent(${ev.id}, ${p.userId})">Remove</button>
+                ` : ""}
+              </li>`;
+          }).join("")}
         </ul>
+        <button onclick="addParticipantToEvent(${ev.id})">Add Participant</button>
+        <br><br>
         <button onclick="showEventList()">Back</button>
-      ` ;
-        showSection("eventDetails");
+      `;
+
+      showSection("eventDetails");
     };
 
     const createNewEvent = async () => {
@@ -407,14 +461,14 @@
     async function changeRole(eventId, targetUserId) {
     const newRoleId = selectedRoles[targetUserId];
     console.log(newRoleId);
-    if (!newRoleId) {
+    if (!newRoleId || newRoleId == 4) {
         showPopup("Please select a role before submitting.");
         return;
     }
 
     try {
         const res = await fetch(`http://localhost:5238/events/${eventId}/participants/${targetUserId}/role`, {
-            method: "PUT",
+            method: "POST",
             headers: {
                 "Content-Type": "application/json",
                 Authorization: `Bearer ${token}`
@@ -487,6 +541,7 @@
     } else {
         showRegister();
     }
+    
   </script>
 </body>
 </html>
