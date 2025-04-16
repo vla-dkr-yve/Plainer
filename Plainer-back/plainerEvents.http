@@ -1,0 +1,48 @@
+GET http://localhost:5238/events/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjMiLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiQmVybmthc3RlbCIsImV4cCI6MTc0NDgwNDM2OCwiaXNzIjoiUGxhaW5lckFwcCIsImF1ZCI6IlBsYWluZXJVc2VycyJ9.KIdh96s3wrFh2c6qG4D889AKyMEFKTzs98OP0mE1pWY
+
+###
+
+GET http://localhost:5238/events/1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjMiLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiQmVybmthc3RlbCIsImV4cCI6MTc0NDgwNDM2OCwiaXNzIjoiUGxhaW5lckFwcCIsImF1ZCI6IlBsYWluZXJVc2VycyJ9.KIdh96s3wrFh2c6qG4D889AKyMEFKTzs98OP0mE1pWY
+
+###
+POST http://localhost:5238/events/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjMiLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiQmVybmthc3RlbCIsImV4cCI6MTc0NDgwNDM2OCwiaXNzIjoiUGxhaW5lckFwcCIsImF1ZCI6IlBsYWluZXJVc2VycyJ9.KIdh96s3wrFh2c6qG4D889AKyMEFKTzs98OP0mE1pWY
+Content-Type: application/json
+
+{
+    "Title" : "New User",
+    "Description":"1st normal user",
+    "StartTime":"2017-09-08T16:08:19.290Z",
+    "EndTime":"2022-12-08T16:08:19.290Z",
+    "CategoryId":2
+}
+
+###
+PUT http://localhost:5238/events/1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjMiLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiQmVybmthc3RlbCIsImV4cCI6MTc0NDgwNDM2OCwiaXNzIjoiUGxhaW5lckFwcCIsImF1ZCI6IlBsYWluZXJVc2VycyJ9.KIdh96s3wrFh2c6qG4D889AKyMEFKTzs98OP0mE1pWY
+Content-Type: application/json
+
+{
+    "Title" : "Flying",
+    "Description":"2nd day of flying",
+    "StartTime":"2017-09-08T16:08:19.290Z",
+    "EndTime":"2022-12-08T16:08:19.290Z",
+    "CategoryId":1,
+    "IsChecked" : true,
+    "EventParticipants": [
+        {
+            "UserId" : 1,
+            "RoleId" : 1
+        },
+        {
+            "UserId" : 2,
+            "RoleId" : 3
+        }
+    ]
+}
+
+###
+DELETE http://localhost:5238/events/2
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjMiLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiQmVybmthc3RlbCIsImV4cCI6MTc0NDgwNDM2OCwiaXNzIjoiUGxhaW5lckFwcCIsImF1ZCI6IlBsYWluZXJVc2VycyJ9.KIdh96s3wrFh2c6qG4D889AKyMEFKTzs98OP0mE1pWY
