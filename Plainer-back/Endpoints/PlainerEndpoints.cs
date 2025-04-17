@@ -11,7 +11,6 @@ public static class PlainerEndPoints
 
         app.MapPlainerEventParticipantsEndpoints();
 
-        app.MapPlainerCategoriesEndpoints();
         return app;
     }
 }

@@ -29,7 +29,7 @@ public static class PlainerEventParticipantsEndpoints
                 return Results.Forbid();
             };
 
-            if (newRole.NewRoleId <= currentParticipant.RoleId)
+            if (newRole.NewRoleId <= currentParticipant!.RoleId)
             {
                 return Results.Forbid();
             }
@@ -92,7 +92,7 @@ public static class PlainerEventParticipantsEndpoints
                 await dbContext.EventParticipants.Where(x=>x.UserId == targetParticipant!.UserId && x.EventId == eventId).ExecuteDeleteAsync();
                 await dbContext.SaveChangesAsync();
 
-                return Results.NoContent();
+                return Results.Ok();
             }
         );
 

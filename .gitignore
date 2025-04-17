@@ -133,7 +133,9 @@ $RECYCLE.BIN/
 _NCrunch*
 
 #Database
-.db
+.db*
+.db-shm*
+.db-wal*
 
 #VS
 .vs

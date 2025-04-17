@@ -12,6 +12,11 @@ public static class PlainerCategoriesEndpoints
         group.MapGet("/", async (PlainerDbContext dbContext) => {
             var categories = await dbContext.Categories.Select(x => x.Name).ToListAsync();
 
+            if (categories is null)
+            {
+                return Results.NoContent();
+            }
+
             return Results.Ok(categories);
         });
         return group;
