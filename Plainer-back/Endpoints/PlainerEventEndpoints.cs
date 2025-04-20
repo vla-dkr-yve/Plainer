@@ -84,7 +84,7 @@ public static class PlainerEventEndpoints
             //Put Event
         group.MapPut("/{id}", [Authorize] async (int id, UpdateEventDTO updatedEvent, PlainerDbContext dbContext) => 
             {
-                Event? oldEvent = await dbContext.Events.Include(x => x.EventParticipants).FirstOrDefaultAsync(x => x.Id == id);
+                Event? oldEvent = await dbContext.Events.Include(x => x.EventParticipants).Include(x => x.Category).FirstOrDefaultAsync(x => x.Id == id);
 
                 if(oldEvent is null){
                     return Results.NoContent();

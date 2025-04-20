@@ -213,7 +213,17 @@ const openEvent = async id => {
 };
 
 const createNewEvent = async () => {
-    const selectedCategory = document.getElementById("categorySelect").value || null;
+    let selectedCategoryValue = document.getElementById("categorySelect").value || null;
+    console.log(selectedCategoryValue);
+    const categoryOptions = [
+      { name: null, id: 0},
+      { name: "Work", id: 1 },
+      { name: "Personal", id: 2 },
+      { name: "Holiday", id: 3 },
+      { name: "Sport", id: 4 }
+    ];
+    let selectedCategory = categoryOptions.find(cat => cat.name === selectedCategoryValue).id;
+    console.log(selectedCategory);
     const res = await fetch("http://localhost:5238/events", {
         method: "POST",
         headers: {
@@ -225,7 +235,7 @@ const createNewEvent = async () => {
             Description: document.getElementById("description").value,
             StartTime: document.getElementById("startTime").value,
             EndTime: document.getElementById("endTime").value,
-            CategoryName: selectedCategory
+            CategoryId: selectedCategory
             })
         });
     if (res.ok) {
